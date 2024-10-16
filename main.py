@@ -1,46 +1,34 @@
-import tkinter as tk
-from tkinter import messagebox
-
 class TicTacToe:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Tic Tac Toe")
-        self.reset_game()
-        
-        # Create buttons
-        self.buttons = [[None for _ in range(3)] for _ in range(3)]
-        for row in range(3):
-            for col in range(3):
-                button = tk.Button(self.root, text="", font=('Arial', 24), width=5, height=2,
-                                   command=lambda r=row, c=col: self.make_move(r, c))
-                button.grid(row=row, column=col)
-                self.buttons[row][col] = button
-        
-        # Reset button
-        self.reset_button = tk.Button(self.root, text="Reset", font=('Arial', 14), command=self.reset_game)
-        self.reset_button.grid(row=3, column=0, columnspan=3)
-    
-    def reset_game(self):
-        self.board = [['' for _ in range(3)] for _ in range(3)]
+    def __init__(self):
+        self.board = [[' ' for _ in range(3)] for _ in range(3)]
         self.current_player = 'X'
+        self.game_over = False
+
+    def print_board(self):
+        print("Current board:")
         for row in range(3):
-            for col in range(3):
-                self.buttons[row][col].config(text="", state=tk.NORMAL)
-    
+            print("|".join(self.board[row]))
+            if row < 2:
+                print("-----")
+
     def make_move(self, row, col):
-        if self.board[row][col] == '':
+        if self.board[row][col] == ' ':
             self.board[row][col] = self.current_player
-            self.buttons[row][col].config(text=self.current_player)
             if self.check_winner(self.current_player):
-                messagebox.showinfo("Game Over", f"Player {self.current_player} wins!")
-                self.disable_buttons()
+                self.print_board()
+                print(f"Player {self.current_player} wins!")
+                self.game_over = True
             elif self.check_draw():
-                messagebox.showinfo("Game Over", "It's a draw!")
+                self.print_board()
+                print("It's a draw!")
+                self.game_over = True
             else:
                 self.current_player = 'O' if self.current_player == 'X' else 'X'
-    
+        else:
+            print("This position is already taken. Try again.")
+
     def check_winner(self, player):
-        # Check rows, columns, and diagonals
+        # Check rows, columns, and diagonals for a win
         for i in range(3):
             if all(self.board[i][j] == player for j in range(3)) or \
                all(self.board[j][i] == player for j in range(3)):
@@ -49,16 +37,28 @@ class TicTacToe:
            (self.board[0][2] == player and self.board[1][1] == player and self.board[2][0] == player):
             return True
         return False
-    
+
     def check_draw(self):
-        return all(self.board[row][col] != '' for row in range(3) for col in range(3))
-    
-    def disable_buttons(self):
-        for row in range(3):
-            for col in range(3):
-                self.buttons[row][col].config(state=tk.DISABLED)
+        return all(self.board[row][col] != ' ' for row in range(3) for col in range(3))
+
+    def play(self):
+        print("Welcome to Tic Tac Toe!")
+        self.print_board()
+        while not self.game_over:
+            try:
+                row = int(input(f"Player {self.current_player}, enter the row (0, 1, 2): "))
+                col = int(input(f"Player {self.current_player}, enter the column (0, 1, 2): "))
+                if row in [0, 1, 2] and col in [0, 1, 2]:
+                    self.make_move(row, col)
+                    if not self.game_over:
+                        self.print_board()
+                else:
+                    print("Invalid input. Please enter numbers between 0 and 2.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    game = TicTacToe(root)
-    root.mainloop()
+    game = TicTacToe()
+    game.play()
+
